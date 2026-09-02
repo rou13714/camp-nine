@@ -1,0 +1,226 @@
+<!DOCTYPE html>
+<html lang="zh-Hant">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>CAMP NINE｜露營賓果</title>
+<link rel="stylesheet" href="style.css">
+</head>
+<body>
+
+
+<!-- ============ HOME ============ -->
+<div class="screen active" id="home">
+  <div class="ghost display">CAMP NINE</div>
+  <p class="home-title">Camp Nine</p>
+
+  <div class="carousel-stage">
+    <div class="carousel-slide" id="slide-bingo"><img src="images/bingo-characters.png" alt=""></div>
+    <div class="carousel-slide" id="slide-solo"><img src="images/solo-characters.png" alt=""></div>
+  </div>
+
+  <div class="carousel-peek" id="peek-bingo"><img alt=""></div>
+  <div class="carousel-peek" id="peek-solo"><img alt=""></div>
+
+  <div class="carousel-caption">
+    <h3 id="slideTitle">賓果模式</h3>
+    <p id="slideDesc">兩隊搶格對戰，湊滿兩條線獲勝</p>
+    <p class="carousel-hint">左右切換選擇模式，按「進入」開始</p>
+  </div>
+
+  <div class="carousel-controls">
+    <div class="circle-btn" onclick="carouselNav(-1)">←</div>
+    <div class="circle-btn" onclick="carouselNav(1)">→</div>
+  </div>
+
+  <button id="carouselEnterBtn" onclick="enterSelectedMode()">LET'S PLAY →</button>
+
+  <div class="dots">
+    <div class="dot active" id="dot-0"></div>
+    <div class="dot" id="dot-1"></div>
+  </div>
+</div>
+
+<!-- ============ BINGO: team setup ============ -->
+<div class="screen" id="bingoTeamSetup">
+  <div class="back-btn circle-btn" onclick="renderCarousel();go('home')">←</div>
+  <h2 class="page-title display" style="color:#fff;">隊伍設置</h2>
+
+  <div class="section-block">
+    <h3>👥 隊伍名稱（選填）</h3>
+    <div class="hint">不填就用預設的 A隊 / B隊</div>
+    <div class="team-row">
+      <div class="team-field"><label>隊伍 A</label><input id="bingoNameA" placeholder="A隊"></div>
+      <div class="team-field"><label>隊伍 B</label><input id="bingoNameB" placeholder="B隊"></div>
+    </div>
+  </div>
+
+  <div class="section-block">
+    <h3>🎨 隊伍顏色（選填）</h3>
+    <div class="hint">隊伍 A</div>
+    <div class="swatch-row" id="bingoSwatchA"></div>
+    <div class="hint" style="margin-top:14px;">隊伍 B</div>
+    <div class="swatch-row" id="bingoSwatchB"></div>
+  </div>
+
+  <button class="btn btn-solid" onclick="startBingoFill()">下一步：猜拳分順序 ▶</button>
+</div>
+
+<!-- ============ BINGO: who goes first ============ -->
+<div class="screen" id="bingoFirstPick">
+  <div class="back-btn circle-btn" onclick="go('bingoTeamSetup')">←</div>
+  <h2 class="page-title display" style="color:#fff;">現場猜拳，誰先選？</h2>
+  <p class="hint" style="text-align:center;color:var(--muted);">兩隊猜拳，贏的隊伍先選格子，之後輪流</p>
+  <div style="display:flex;gap:16px;position:relative;z-index:2;">
+    <button class="btn btn-solid" id="firstBtnA" onclick="setFirstPicker('A')">A隊先選</button>
+    <button class="btn btn-outline" id="firstBtnB" onclick="setFirstPicker('B')">B隊先選</button>
+  </div>
+</div>
+
+<!-- ============ BINGO: fill grid ============ -->
+<div class="screen" id="bingoFill">
+  <div class="back-btn circle-btn" onclick="go('bingoFirstPick')">←</div>
+  <h2 class="page-title display" style="color:#fff;">填九宮格</h2>
+  <div class="turn-banner" id="fillTurnBanner">現在輪到 A隊 選代稱</div>
+  <p class="hint" style="text-align:center;color:var(--muted);">先點一張搞笑代稱小卡，再點空格子放上去</p>
+  <div class="tile-pool" id="tilePool"></div>
+  <div class="fill-grid" id="fillGrid"></div>
+  <div style="display:flex;gap:12px;position:relative;z-index:2;">
+    <button class="btn btn-outline" onclick="randomizeFill()">🎲 隨機填滿</button>
+    <button class="btn btn-solid" id="fillDoneBtn" onclick="enterBoard()" disabled>開始對戰 ▶</button>
+  </div>
+</div>
+
+<!-- ============ BINGO: board ============ -->
+<div class="screen" id="board">
+  <div class="ghost display">LINE UP</div>
+  <div class="settings-fab circle-btn" onclick="alert('這裡之後可以做「重新設置」的入口')">⚙</div>
+  <div class="board-wrap">
+    <div class="teams-bar">
+      <div class="team-chip">
+        <div class="team-dot" id="boardDotA">A</div>
+        <div><div class="team-label" id="boardNameA">A隊</div><div class="team-score" id="boardScoreA">0 線</div></div>
+      </div>
+      <div class="turn-pill" id="boardTurnPill">A隊選格</div>
+      <div class="team-chip right">
+        <div class="team-dot" id="boardDotB">B</div>
+        <div><div class="team-label" id="boardNameB">B隊</div><div class="team-score" id="boardScoreB">0 線</div></div>
+      </div>
+    </div>
+    <div class="bingo-grid" id="bingoGrid"></div>
+  </div>
+</div>
+
+<!-- ============ BINGO: cell play ============ -->
+<div class="screen" id="play">
+  <div class="back-btn circle-btn" onclick="confirmAbandonPlay()">←</div>
+  <div class="play-wrap">
+    <div class="play-scorebar" id="playScorebar"></div>
+    <div class="qcard" id="qcard">題目載入中...</div>
+    <div class="play-actions" id="playActions"></div>
+  </div>
+</div>
+
+<!-- ============ BINGO: cell result ============ -->
+<div class="screen" id="cellResult">
+  <div class="result-card">
+    <div class="big" id="cellResultText">A隊拿下這格！</div>
+    <p class="hint" style="color:#7a7a7a;">回到賓果表繼續下一輪</p>
+    <button class="btn btn-dark" onclick="returnToBoard()">返回九宮格 ▶</button>
+  </div>
+</div>
+
+<!-- ============ BINGO: win screen ============ -->
+<div class="screen" id="winScreen">
+  <div class="result-card">
+    <div class="big">🎉 <span id="winnerName">A隊</span> 獲勝！</div>
+    <p class="hint" style="color:#7a7a7a;">湊滿兩條線，遊戲結束</p>
+    <button class="btn btn-dark" onclick="renderCarousel();go('home')">回首頁</button>
+  </div>
+</div>
+
+<!-- ============ SOLO: mode select ============ -->
+<div class="screen" id="soloModeSelect">
+  <div class="back-btn circle-btn" onclick="renderCarousel();go('home')">←</div>
+  <h2 class="page-title display" style="color:#fff;">單機模式</h2>
+  <div class="mode-grid">
+    <div class="mode-card" onclick="soloMode='team';go('soloTeamSetup')">
+      <div class="icon">🤝</div><h3>團隊賽</h3><p>雙方比分對決</p>
+    </div>
+    <div class="mode-card" onclick="soloMode='solo';go('soloGamePick')">
+      <div class="icon">🙋</div><h3>個人賽</h3><p>自己練習，不記分</p>
+    </div>
+  </div>
+</div>
+
+<div class="screen" id="soloTeamSetup">
+  <div class="back-btn circle-btn" onclick="go('soloModeSelect')">←</div>
+  <h2 class="page-title display" style="color:#fff;">隊伍設置</h2>
+  <div class="section-block">
+    <h3>👥 隊伍名稱（選填）</h3>
+    <div class="team-row">
+      <div class="team-field"><label>隊伍 A</label><input id="soloNameA" placeholder="A隊"></div>
+      <div class="team-field"><label>隊伍 B</label><input id="soloNameB" placeholder="B隊"></div>
+    </div>
+  </div>
+  <div class="section-block">
+    <h3>🎨 隊伍顏色（選填）</h3>
+    <div class="hint">隊伍 A</div>
+    <div class="swatch-row" id="soloSwatchA"></div>
+    <div class="hint" style="margin-top:14px;">隊伍 B</div>
+    <div class="swatch-row" id="soloSwatchB"></div>
+  </div>
+  <button class="btn btn-solid" onclick="confirmSoloTeamSetup()">下一步：選遊戲 ▶</button>
+</div>
+
+<div class="screen" id="soloGamePick">
+  <div class="back-btn circle-btn" onclick="go(soloMode==='team'?'soloTeamSetup':'soloModeSelect')">←</div>
+  <h2 class="page-title display" style="color:#fff;">選一款遊戲</h2>
+  <div class="section-block" id="soloGameList" style="max-width:540px;"></div>
+</div>
+
+<div class="screen" id="soloThemePick">
+  <div class="back-btn circle-btn" onclick="go('soloGamePick')">←</div>
+  <h2 class="page-title display" style="color:#fff;">選主題包</h2>
+  <div class="pill-group" id="soloThemeList"></div>
+  <button class="btn btn-solid" style="margin-top:24px;position:relative;z-index:2;" onclick="startSoloPlay()">開始 5 題 ▶</button>
+</div>
+
+<div class="screen" id="soloPlay">
+  <div class="back-btn circle-btn" onclick="confirmAbandonSolo()">←</div>
+  <div class="play-wrap">
+    <p class="hint" id="soloProgress" style="color:var(--muted);">第 1 / 5 題</p>
+    <div class="qcard" id="soloQcard">題目載入中...</div>
+    <div class="play-actions" id="soloPlayActions"></div>
+  </div>
+</div>
+
+<div class="screen" id="soloEnd">
+  <div class="result-card">
+    <div class="big" id="soloEndTitle">本輪結束！</div>
+    <p class="hint" id="soloEndSub" style="color:#7a7a7a;"></p>
+    <div style="display:flex;gap:10px;flex-wrap:wrap;justify-content:center;margin-top:16px;">
+      <button class="btn btn-outline" style="color:var(--ink);border-color:var(--ink);" onclick="go('soloThemePick')">再玩一輪</button>
+      <button class="btn btn-outline" style="color:var(--ink);border-color:var(--ink);" onclick="go('soloGamePick')">換遊戲</button>
+      <button class="btn btn-dark" onclick="renderCarousel();go('home')">回首頁</button>
+    </div>
+  </div>
+</div>
+
+<!-- ============ Correction modal ============ -->
+<div class="modal-backdrop" id="correctionModal">
+  <div class="modal-box">
+    <h3>這格目前是「<span id="correctionCurrent"></span>」</h3>
+    <div>
+      <button class="btn btn-dark btn-sm" onclick="reassignCell('A')">改成 A隊</button>
+      <button class="btn btn-dark btn-sm" onclick="reassignCell('B')">改成 B隊</button>
+    </div>
+    <div style="margin-top:8px;">
+      <button class="btn btn-outline btn-sm" style="color:var(--ink);border-color:var(--ink);" onclick="clearCell()">清空重玩</button>
+      <button class="btn btn-outline btn-sm" style="color:var(--ink);border-color:var(--ink);" onclick="closeModal()">取消</button>
+    </div>
+  </div>
+</div>
+<script src="app.js"></script>
+</body>
+</html>
