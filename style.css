@@ -164,24 +164,33 @@
 
   /* ===== carousel (home) — sketch layout: light bg, ghost headline, side character, bottom-left caption ===== */
   #home{justify-content:flex-start;padding:0;overflow:hidden;transition:background-color .5s ease;}
-  #home .ghost{color:rgba(42,33,24,.14);}
   #home .home-title{display:none;}
 
-  .carousel-stage{position:absolute;inset:0;width:100%;height:100%;z-index:2;
-    display:flex;align-items:center;justify-content:center;pointer-events:none;}
-  .carousel-slide{position:absolute;bottom:6%;left:64%;transition:opacity .6s cubic-bezier(.4,0,.2,1),
+  /* everything in the hero (headline + characters + peek icon) lives inside one
+     centered, width-capped frame so the composition stays a single balanced
+     block instead of the text and character drifting apart on wide screens */
+  .hero-frame{position:absolute;top:0;bottom:0;left:50%;transform:translateX(-50%);
+    width:min(90vw,1180px);pointer-events:none;z-index:2;}
+
+  #home .ghost{position:absolute;left:0;right:0;top:9%;text-align:center;z-index:0;
+    color:rgba(42,33,24,.14);font-size:clamp(56px,11.5vw,168px);line-height:1;
+    white-space:nowrap;pointer-events:none;}
+
+  .carousel-stage{position:absolute;inset:0;display:flex;align-items:flex-end;
+    justify-content:flex-end;pointer-events:none;}
+  .carousel-slide{position:absolute;bottom:4%;right:0;transition:opacity .6s cubic-bezier(.4,0,.2,1),
     transform .6s cubic-bezier(.4,0,.2,1), filter .6s cubic-bezier(.4,0,.2,1);
-    opacity:0;transform:translateX(-50%) scale(.88);filter:blur(8px);pointer-events:none;}
-  .carousel-slide img{height:48vh;max-height:440px;width:auto;display:block;
+    opacity:0;transform:translateX(0) scale(.9);filter:blur(8px);pointer-events:none;}
+  .carousel-slide img{height:58vh;max-height:600px;width:auto;display:block;
     filter:drop-shadow(0 16px 18px rgba(0,0,0,.18));}
-  .carousel-slide.active{opacity:1;transform:translateX(-50%) scale(1);filter:blur(0);}
+  .carousel-slide.active{opacity:1;transform:translateX(0) scale(1);filter:blur(0);}
 
   /* small "peek" thumbnail of the other mode's characters, tucked in a corner */
-  .carousel-peek{position:absolute;top:2%;width:64px;opacity:0;transition:opacity .5s ease;
+  .carousel-peek{position:absolute;top:0;width:56px;opacity:0;transition:opacity .5s ease;
     z-index:3;pointer-events:none;filter:drop-shadow(0 6px 8px rgba(0,0,0,.15));}
   .carousel-peek img{width:100%;display:block;}
-  #peek-bingo{left:6%;}
-  #peek-solo{right:6%;}
+  #peek-bingo{left:0;}
+  #peek-solo{right:0;}
   .carousel-peek.show{opacity:1;}
 
   .carousel-caption{position:absolute;left:24px;bottom:74px;z-index:6;max-width:320px;
